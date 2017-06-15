@@ -74,6 +74,7 @@ extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
+typedef void(^SDWebMediaDownloaderCompletedBlock)(NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
 typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
 typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
@@ -212,6 +213,11 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
                                                    options:(SDWebImageDownloaderOptions)options
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+
+- (nullable SDWebImageDownloadToken *)downloadMediaWithURL:(nullable NSURL *)url
+												   options:(SDWebImageDownloaderOptions)options
+												  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+												 completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock;
 
 /**
  * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:

@@ -197,6 +197,64 @@
         return operation;
     }];
 }
+- (nullable SDWebImageDownloadToken *)downloadMediaWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock {
+    __weak SDWebImageDownloader *wself = self;
+
+    return [self addProgressCallback:progressBlock completedMediaBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
+        __strong __typeof (wself) sself = wself;
+        NSTimeInterval timeoutInterval = sself.downloadTimeout;
+        if (timeoutInterval == 0.0) {
+            timeoutInterval = 15.0;
+        }
+
+        // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
+        NSURLRequestCachePolicy cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+        if (options & SDWebImageDownloaderUseNSURLCache) {
+            if (options & SDWebImageDownloaderIgnoreCachedResponse) {
+                cachePolicy = NSURLRequestReturnCacheDataDontLoad;
+            } else {
+                cachePolicy = NSURLRequestUseProtocolCachePolicy;
+            }
+        }
+
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:cachePolicy timeoutInterval:timeoutInterval];
+
+        request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
+        request.HTTPShouldUsePipelining = YES;
+        if (sself.headersFilter) {
+            request.allHTTPHeaderFields = sself.headersFilter(url, [sself.HTTPHeaders copy]);
+        }
+        else {
+            request.allHTTPHeaderFields = sself.HTTPHeaders;
+        }
+        SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
+        operation.shouldDecompressImages = sself.shouldDecompressImages;
+
+        if (sself.urlCredential) {
+            operation.credential = sself.urlCredential;
+        } else if (sself.username && sself.password) {
+            operation.credential = [NSURLCredential credentialWithUser:sself.username password:sself.password persistence:NSURLCredentialPersistenceForSession];
+        }
+
+        if (options & SDWebImageDownloaderHighPriority) {
+            operation.queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            operation.queuePriority = NSOperationQueuePriorityLow;
+        }
+
+        [sself.downloadQueue addOperation:operation];
+        if (sself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
+            // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
+            [sself.lastAddedOperation addDependency:operation];
+            sself.lastAddedOperation = operation;
+        }
+
+        return operation;
+    }];
+}
 
 - (void)cancel:(nullable SDWebImageDownloadToken *)token {
     dispatch_barrier_async(self.barrierQueue, ^{
@@ -244,6 +302,44 @@
         token.downloadOperationCancelToken = downloadOperationCancelToken;
     });
 
+    return token;
+}
+- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+                                      completedMediaBlock:(SDWebMediaDownloaderCompletedBlock)completedBlock
+                                                   forURL:(nullable NSURL *)url
+                                           createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
+    // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
+    if (url == nil) {
+        if (completedBlock != nil) {
+            completedBlock(nil, nil, NO);
+        }
+        return nil;
+    }
+
+    __block SDWebImageDownloadToken *token = nil;
+
+    dispatch_barrier_sync(self.barrierQueue, ^{
+        SDWebImageDownloaderOperation *operation = self.URLOperations[url];
+        if (!operation) {
+            operation = createCallback();
+            self.URLOperations[url] = operation;
+
+            __weak SDWebImageDownloaderOperation *woperation = operation;
+            operation.completionBlock = ^{
+                SDWebImageDownloaderOperation *soperation = woperation;
+                if (!soperation) return;
+                if (self.URLOperations[url] == soperation) {
+                    [self.URLOperations removeObjectForKey:url];
+                };
+            };
+        }
+        id downloadOperationCancelToken = [operation addHandlersForMediaProgress:progressBlock completed:completedBlock];
+
+        token = [SDWebImageDownloadToken new];
+        token.url = url;
+        token.downloadOperationCancelToken = downloadOperationCancelToken;
+    });
+    
     return token;
 }
 

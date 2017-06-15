@@ -110,6 +110,9 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
+- (nullable id)addHandlersForMediaProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+								 completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock;
+
 /**
  *  Cancels a set of callbacks. Once all callbacks are canceled, the operation is cancelled.
  *

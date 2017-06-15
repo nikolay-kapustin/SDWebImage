@@ -92,6 +92,16 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     });
     return callbacks;
 }
+- (nullable id)addHandlersForMediaProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock {
+    SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
+    if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
+    if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
+    dispatch_barrier_async(self.barrierQueue, ^{
+        [self.callbackBlocks addObject:callbacks];
+    });
+    return callbacks;
+}
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
     __block NSMutableArray<id> *callbacks = nil;

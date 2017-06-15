@@ -101,6 +101,11 @@ typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _N
 
 typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
+typedef void(^SDMediaExternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
+
+typedef void(^SDMediaInternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
+
+
 typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
 
 

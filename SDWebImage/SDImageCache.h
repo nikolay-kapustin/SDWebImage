@@ -25,7 +25,8 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeMemory
 };
 
-typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDCacheQueryImageCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDCacheQueryMediaCompletedBlock)(NSData * _Nullable data, SDImageCacheType cacheType);
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
@@ -135,15 +136,20 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
+- (void)storeMediaData:(nullable NSData *)mediaData
+				forKey:(nullable NSString *)key
+				toDisk:(BOOL)toDisk
+			completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+
 /**
  * Synchronously store image NSData into disk cache at the given key.
  *
  * @warning This method is synchronous, make sure to call it from the ioQueue
  *
- * @param imageData  The image data to store
+ * @param mediaData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
  */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key;
+- (void)storeMediaDataToDisk:(nullable NSData *)mediaData forKey:(nullable NSString *)key;
 
 #pragma mark - Query and Retrieve Ops
 
@@ -164,14 +170,24 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryImageCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryImageCompletedBlock)doneBlock;
+
+/**
+ * Operation that queries the cache asynchronously and call the completion when done.
+ *
+ * @param key       The unique key used to store the wanted image
+ * @param doneBlock The completion block. Will not get called if the operation is cancelled
+ *
+ * @return a NSOperation instance containing the cache op
+ */
+- (nullable NSOperation *)queryMediaCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryMediaCompletedBlock)doneBlock;
 
 /**
  * Query the memory cache synchronously.
  *
- * @param key The unique key used to store the image
+ * @param key The unique key used to store the media
  */
-- (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key;
+- (nullable id)objectFromMemoryCacheForKey:(nullable NSString *)key;
 
 /**
  * Query the disk cache synchronously.
@@ -180,12 +196,15 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key;
 
+- (nullable NSData *)mediaFromDiskCacheForKey:(nullable NSString *)key;
+
 /**
  * Query the cache (memory and or disk) synchronously after checking the memory cache.
  *
  * @param key The unique key used to store the image
  */
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key;
+- (nullable NSData *)mediaFromCacheForKey:(nullable NSString *)key;
 
 #pragma mark - Remove Ops
 

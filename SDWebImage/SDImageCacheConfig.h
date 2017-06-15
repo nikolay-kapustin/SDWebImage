@@ -25,7 +25,7 @@
 /**
  * use memory cache [defaults to YES]
  */
-@property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+@property (assign, nonatomic) BOOL shouldCacheDataInMemory;
 
 /**
  * The maximum length of time to keep an image in the cache, in seconds
