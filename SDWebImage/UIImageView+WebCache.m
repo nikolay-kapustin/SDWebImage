@@ -43,7 +43,7 @@
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                  progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -57,7 +57,7 @@
 - (void)sd_setImageWithPreviousCachedImageWithURL:(nullable NSURL *)url
                                  placeholderImage:(nullable UIImage *)placeholder
                                           options:(SDWebImageOptions)options
-                                         progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                         progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                                         completed:(nullable SDExternalCompletionBlock)completedBlock {
     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
     UIImage *lastPreviousCachedImage = [[SDImageCache sharedImageCache] imageFromCacheForKey:key];
@@ -76,7 +76,7 @@
     NSMutableArray<id<SDWebImageOperation>> *operationsArray = [[NSMutableArray alloc] init];
 
     for (NSURL *logoImageURL in arrayOfURLs) {
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDMediaCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_async_safe(^{
                 __strong UIImageView *sself = wself;

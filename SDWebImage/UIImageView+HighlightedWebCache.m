@@ -33,7 +33,7 @@
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
-                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                             progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url

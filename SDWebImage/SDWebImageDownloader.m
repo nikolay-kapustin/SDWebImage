@@ -141,7 +141,7 @@
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
-                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                  progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
@@ -199,7 +199,7 @@
 }
 - (nullable SDWebImageDownloadToken *)downloadMediaWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
-                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                  progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
@@ -266,7 +266,7 @@
     });
 }
 
-- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebMediaDownloaderProgressBlock)progressBlock
                                            completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
@@ -304,7 +304,7 @@
 
     return token;
 }
-- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebMediaDownloaderProgressBlock)progressBlock
                                       completedMediaBlock:(SDWebMediaDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {

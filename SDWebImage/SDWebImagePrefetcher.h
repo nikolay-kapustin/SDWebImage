@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageManager.h"
 
-@class SDWebImagePrefetcher;
+@class SDWebMediaPrefetcher;
 
-@protocol SDWebImagePrefetcherDelegate <NSObject>
+@protocol SDWebMediaPrefetcherDelegate <NSObject>
 
 @optional
 
@@ -23,7 +23,7 @@
  * @param finishedCount   The total number of images that were prefetched (successful or not)
  * @param totalCount      The total number of images that were to be prefetched
  */
-- (void)imagePrefetcher:(nonnull SDWebImagePrefetcher *)imagePrefetcher didPrefetchURL:(nullable NSURL *)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount;
+- (void)imagePrefetcher:(nonnull SDWebMediaPrefetcher *)imagePrefetcher didPrefetchURL:(nullable NSURL *)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount;
 
 /**
  * Called when all images are prefetched.
@@ -31,7 +31,7 @@
  * @param totalCount      The total number of images that were prefetched (whether successful or not)
  * @param skippedCount    The total number of images that were skipped
  */
-- (void)imagePrefetcher:(nonnull SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount;
+- (void)imagePrefetcher:(nonnull SDWebMediaPrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount;
 
 @end
 
@@ -41,7 +41,7 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 /**
  * Prefetch some URLs in the cache for future use. Images are downloaded in low priority.
  */
-@interface SDWebImagePrefetcher : NSObject
+@interface SDWebMediaPrefetcher : NSObject
 
 /**
  *  The web image manager
@@ -63,17 +63,21 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  */
 @property (nonatomic, assign, nonnull) dispatch_queue_t prefetcherQueue;
 
-@property (weak, nonatomic, nullable) id <SDWebImagePrefetcherDelegate> delegate;
+@property (weak, nonatomic, nullable) id <SDWebMediaPrefetcherDelegate> delegate;
 
 /**
  * Return the global image prefetcher instance.
  */
 + (nonnull instancetype)sharedImagePrefetcher;
 
++ (nonnull instancetype)sharedMediaPrefetcher;
+
 /**
  * Allows you to instantiate a prefetcher with any arbitrary image manager.
  */
 - (nonnull instancetype)initWithImageManager:(nonnull SDWebImageManager *)manager NS_DESIGNATED_INITIALIZER;
+
+- (nonnull instancetype)initWithMediaManager:(nonnull SDWebImageManager *)manager NS_DESIGNATED_INITIALIZER;
 
 /**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,

@@ -97,13 +97,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageScaleDownLargeImages = 1 << 12
 };
 
-typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
+typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDMediaCacheType cacheType, NSURL * _Nullable imageURL);
 
-typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
+typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDMediaCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
-typedef void(^SDMediaExternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
+typedef void(^SDMediaExternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDMediaCacheType cacheType, NSURL * _Nullable dataURL);
 
-typedef void(^SDMediaInternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
+typedef void(^SDMediaInternalCompletionBlock)(NSData * _Nullable data, NSError * _Nullable error, SDMediaCacheType cacheType, BOOL finished, NSURL * _Nullable dataURL);
 
 
 typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
@@ -226,8 +226,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                               options:(SDWebImageOptions)options
-                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                             progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                                             completed:(nullable SDInternalCompletionBlock)completedBlock;
+
+- (id <SDWebImageOperation>)loadMediaWithURL:(nullable NSURL *)url
+									 options:(SDWebImageOptions)options
+									progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
+								   completed:(nullable SDMediaInternalCompletionBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

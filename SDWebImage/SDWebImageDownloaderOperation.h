@@ -26,7 +26,7 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options;
 
-- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable id)addHandlersForProgress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 - (BOOL)shouldDecompressImages;
@@ -107,10 +107,10 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
  *
  *  @return the token to use to cancel this set of handlers
  */
-- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable id)addHandlersForProgress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
-- (nullable id)addHandlersForMediaProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable id)addHandlersForMediaProgress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
 								 completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock;
 
 /**

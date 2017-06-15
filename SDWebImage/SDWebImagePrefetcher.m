@@ -8,7 +8,12 @@
 
 #import "SDWebImagePrefetcher.h"
 
-@interface SDWebImagePrefetcher ()
+typedef NS_ENUM(NSInteger, SDWebPrefetcherType) {
+    SDWebImagePrefetcherType = 0,
+    SDWebMediaPrefetcherType
+};
+
+@interface SDWebMediaPrefetcher ()
 
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
 @property (strong, nonatomic, nullable) NSArray<NSURL *> *prefetchURLs;
@@ -21,13 +26,25 @@
 
 @end
 
-@implementation SDWebImagePrefetcher
+@implementation SDWebMediaPrefetcher
+{
+    SDWebPrefetcherType typePrefetcher;
+}
 
 + (nonnull instancetype)sharedImagePrefetcher {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
         instance = [self new];
+    });
+    return instance;
+}
+
++ (nonnull instancetype)sharedMediaPrefetcher {
+    static dispatch_once_t once;
+    static id instance;
+    dispatch_once(&once, ^{
+        instance = [[SDWebMediaPrefetcher alloc] initWithMediaManager:[SDWebImageManager new]];
     });
     return instance;
 }
@@ -40,8 +57,20 @@
     if ((self = [super init])) {
         _manager = manager;
         _options = SDWebImageLowPriority;
+        typePrefetcher = SDWebImagePrefetcherType;
         _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
+    }
+    return self;
+}
+
+- (nonnull instancetype)initWithMediaManager:(SDWebImageManager *)manager {
+    if ((self = [super init])) {
+        _manager = manager;
+        _options = SDWebImageLowPriority;
+        _prefetcherQueue = dispatch_get_main_queue();
+        typePrefetcher = SDWebMediaPrefetcherType;
+        self.maxConcurrentDownloads = 2;
     }
     return self;
 }
@@ -57,42 +86,82 @@
 - (void)startPrefetchingAtIndex:(NSUInteger)index {
     if (index >= self.prefetchURLs.count) return;
     self.requestedCount++;
-    [self.manager loadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-        if (!finished) return;
-        self.finishedCount++;
+    if (typePrefetcher == SDWebMediaPrefetcherType){
+        [self.manager loadMediaWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(NSData *data, NSError *error, SDMediaCacheType cacheType, BOOL finished, NSURL *dataURL) {
+            if (!finished) return;
+            self.finishedCount++;
 
-        if (image) {
-            if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+            if (data) {
+                if (self.progressBlock) {
+                    self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+                }
             }
-        }
-        else {
-            if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+            else {
+                if (self.progressBlock) {
+                    self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+                }
+                // Add last failed
+                self.skippedCount++;
             }
-            // Add last failed
-            self.skippedCount++;
-        }
-        if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)]) {
-            [self.delegate imagePrefetcher:self
-                            didPrefetchURL:self.prefetchURLs[index]
-                             finishedCount:self.finishedCount
-                                totalCount:self.prefetchURLs.count
-             ];
-        }
-        if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(self.prefetcherQueue, ^{
-                [self startPrefetchingAtIndex:self.requestedCount];
-            });
-        } else if (self.finishedCount == self.requestedCount) {
-            [self reportStatus];
-            if (self.completionBlock) {
-                self.completionBlock(self.finishedCount, self.skippedCount);
-                self.completionBlock = nil;
+            if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)]) {
+                [self.delegate imagePrefetcher:self
+                                didPrefetchURL:self.prefetchURLs[index]
+                                 finishedCount:self.finishedCount
+                                    totalCount:self.prefetchURLs.count
+                 ];
             }
-            self.progressBlock = nil;
-        }
-    }];
+            if (self.prefetchURLs.count > self.requestedCount) {
+                dispatch_async(self.prefetcherQueue, ^{
+                    [self startPrefetchingAtIndex:self.requestedCount];
+                });
+            } else if (self.finishedCount == self.requestedCount) {
+                [self reportStatus];
+                if (self.completionBlock) {
+                    self.completionBlock(self.finishedCount, self.skippedCount);
+                    self.completionBlock = nil;
+                }
+                self.progressBlock = nil;
+            }
+        }];
+    }
+    else{
+        [self.manager loadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDMediaCacheType cacheType, BOOL finished, NSURL *imageURL) {
+            if (!finished) return;
+            self.finishedCount++;
+
+            if (image) {
+                if (self.progressBlock) {
+                    self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+                }
+            }
+            else {
+                if (self.progressBlock) {
+                    self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
+                }
+                // Add last failed
+                self.skippedCount++;
+            }
+            if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)]) {
+                [self.delegate imagePrefetcher:self
+                                didPrefetchURL:self.prefetchURLs[index]
+                                 finishedCount:self.finishedCount
+                                    totalCount:self.prefetchURLs.count
+                 ];
+            }
+            if (self.prefetchURLs.count > self.requestedCount) {
+                dispatch_async(self.prefetcherQueue, ^{
+                    [self startPrefetchingAtIndex:self.requestedCount];
+                });
+            } else if (self.finishedCount == self.requestedCount) {
+                [self reportStatus];
+                if (self.completionBlock) {
+                    self.completionBlock(self.finishedCount, self.skippedCount);
+                    self.completionBlock = nil;
+                }
+                self.progressBlock = nil;
+            }
+        }];
+    }
 }
 
 - (void)reportStatus {

@@ -82,7 +82,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     SDDispatchQueueRelease(_barrierQueue);
 }
 
-- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable id)addHandlersForProgress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
@@ -92,7 +92,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     });
     return callbacks;
 }
-- (nullable id)addHandlersForMediaProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+- (nullable id)addHandlersForMediaProgress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebMediaDownloaderCompletedBlock)completedBlock {
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
@@ -176,7 +176,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     [self.dataTask resume];
 
     if (self.dataTask) {
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+        for (SDWebMediaDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -270,7 +270,7 @@ didReceiveResponse:(NSURLResponse *)response
         NSInteger expected = (NSInteger)response.expectedContentLength;
         expected = expected > 0 ? expected : 0;
         self.expectedSize = expected;
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+        for (SDWebMediaDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
         }
         
@@ -386,7 +386,7 @@ didReceiveResponse:(NSURLResponse *)response
         CFRelease(imageSource);
     }
 
-    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+    for (SDWebMediaDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
         progressBlock(self.imageData.length, self.expectedSize, self.request.URL);
     }
 }

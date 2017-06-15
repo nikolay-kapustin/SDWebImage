@@ -32,7 +32,7 @@ static char TAG_ACTIVITY_SHOW;
                            options:(SDWebImageOptions)options
                       operationKey:(nullable NSString *)operationKey
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                          progress:(nullable SDWebMediaDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
@@ -51,7 +51,7 @@ static char TAG_ACTIVITY_SHOW;
         }
         
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDMediaCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) {

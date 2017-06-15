@@ -10,7 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDImageCacheConfig.h"
 
-typedef NS_ENUM(NSInteger, SDImageCacheType) {
+typedef NS_ENUM(NSInteger, SDMediaCacheType) {
     /**
      * The image wasn't available the SDWebImage caches, but was downloaded from the web.
      */
@@ -25,8 +25,8 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeMemory
 };
 
-typedef void(^SDCacheQueryImageCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
-typedef void(^SDCacheQueryMediaCompletedBlock)(NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDCacheQueryImageCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDMediaCacheType cacheType);
+typedef void(^SDCacheQueryMediaCompletedBlock)(NSData * _Nullable data, SDMediaCacheType cacheType);
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
